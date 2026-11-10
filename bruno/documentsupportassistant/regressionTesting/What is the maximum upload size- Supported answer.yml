@@ -1,0 +1,36 @@
+info:
+  name: What is the maximum upload size? Supported answer
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:8080/api/chat
+  body:
+    type: json
+    data: |-
+      {
+        "conversationId": "day9-supported",
+        "message": "Source text:\nThe maximum upload size is 10 MB.\n\nQuestion:\nWhat is the maximum upload size?"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("Returns the upload limit with evidence", function () {
+          expect(res.getStatus()).to.equal(200);
+          const body = res.getBody();
+
+          expect(body.supported).to.equal(true);
+          expect(body.answer).to.include("10 MB");
+          expect(body.evidence).to.equal("The maximum upload size is 10 MB.");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

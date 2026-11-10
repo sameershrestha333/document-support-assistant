@@ -1,0 +1,23 @@
+info:
+  name: Chat — Send Message(What is Max Size) Follow up 2
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: http://localhost:8080/api/chat
+  body:
+    type: json
+    data: |-
+      {
+        "conversationId": "day7-a",
+        "message": "Is 12 MB over that limit?"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

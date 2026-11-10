@@ -1,0 +1,22 @@
+info:
+  name: Chat — Send Messag (max Size 2)
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:8080/api/chat
+  body:
+    type: json
+    data: |-
+      {
+        "message": "Source text:\nThe service accepts only PDF and TXT files.\n\nQuestion:\nWhat is the maximum upload size?"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

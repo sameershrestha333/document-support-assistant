@@ -1,0 +1,22 @@
+info:
+  name: Chat — Send Messag (Does the service accept DOCX file?)
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:8080/api/chat
+  body:
+    type: json
+    data: |-
+      {
+        "message": "Source text:\nThe service accepts only PDF and TXT files...\n\nQuestion:\nDoes the service accept DOCX file?"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

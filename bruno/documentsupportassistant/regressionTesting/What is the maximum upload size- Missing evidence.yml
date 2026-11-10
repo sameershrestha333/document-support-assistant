@@ -1,0 +1,36 @@
+info:
+  name: What is the maximum upload size? Missing evidence
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:8080/api/chat
+  body:
+    type: json
+    data: |-
+      {
+        "conversationId": "day9-missing",
+        "message": "Source text:\nThe service accepts only PDF and TXT files.\n\nQuestion:\nWhat is the maximum upload size?"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("Uses the fallback when the source omits the limit", function () {
+          expect(res.getStatus()).to.equal(200);
+          const body = res.getBody();
+
+          expect(body.supported).to.equal(false);
+          expect(body.answer).to.equal("Sorry, I don't have enough information to answer that.");
+          expect(body.evidence).to.equal("");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
