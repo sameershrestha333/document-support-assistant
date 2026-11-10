@@ -2,6 +2,13 @@
 
 A Java and Spring Boot project for building a document Q&A assistant with Spring AI. The first milestone provides a chat API with input validation and a fixed response.
 
+## About the project
+
+Document Support Assistant is a Java and Spring Boot project that will answer questions from uploaded troubleshooting guides and runbooks. It will cite the source document and page, and tell users when the documents don't contain enough information.
+
+**Example:** Upload a sample vehicle-data import guide and ask, “Why did my XML import fail with `INVALID_SCHEMA`?” The assistant will explain what to check and point to the relevant page.
+
+
 ## Run locally
 
 Use JDK 21 or later. From the project root, run the Maven wrapper in PowerShell.
