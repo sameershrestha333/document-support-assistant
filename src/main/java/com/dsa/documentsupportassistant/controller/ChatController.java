@@ -1,11 +1,9 @@
 package com.dsa.documentsupportassistant.controller;
 
 import com.dsa.documentsupportassistant.dto.ChatRequest;
-import com.dsa.documentsupportassistant.service.AssistantService;
 import com.dsa.documentsupportassistant.dto.DocumentAnswer;
+import com.dsa.documentsupportassistant.service.AssistantService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;

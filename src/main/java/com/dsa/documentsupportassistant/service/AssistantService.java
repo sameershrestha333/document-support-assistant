@@ -1,6 +1,9 @@
 package com.dsa.documentsupportassistant.service;
 
 import com.dsa.documentsupportassistant.dto.DocumentAnswer;
+import com.dsa.documentsupportassistant.exception.ModelProviderException;
+import com.openai.errors.OpenAIIoException;
+import com.openai.errors.OpenAIServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -52,28 +55,33 @@ public class AssistantService {
     public DocumentAnswer answer(String conversationId, String message) {
         long start = System.nanoTime();
         log.info("Sending chat request to OpenAI");
+        try {
 
-        var result = chatClient.prompt()
-                .system(SYSTEM_PROMPT)
-                .user(message)
-                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, conversationId))
-                .call()
-                .responseEntity(DocumentAnswer.class);
+            var result = chatClient.prompt()
+                    .system(SYSTEM_PROMPT)
+                    .user(message)
+                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, conversationId))
+                    .call()
+                    .responseEntity(DocumentAnswer.class);
 
-        long elapsedMs = (System.nanoTime() - start) / 1_000_000;
+            long elapsedMs = (System.nanoTime() - start) / 1_000_000;
 
-        ChatResponse response = result.getResponse();
+            ChatResponse response = result.getResponse();
 
-        Usage usage = response.getMetadata().getUsage();
+            Usage usage = response.getMetadata().getUsage();
 
-        if (usage != null) {
-            log.info("OpenAI replied in {} ms (input: {} , output: {} , total: {}) ", elapsedMs, usage.getPromptTokens(), usage.getCompletionTokens(),
-                    usage.getTotalTokens());
+            if (usage != null) {
+                log.info("OpenAI replied in {} ms (input: {} , output: {} , total: {}) ", elapsedMs, usage.getPromptTokens(), usage.getCompletionTokens(),
+                        usage.getTotalTokens());
 
-        } else {
-            log.warn("No Usage info and OpenAI replied in {} ms", elapsedMs);
+            } else {
+                log.warn("No Usage info and OpenAI replied in {} ms", elapsedMs);
 
+            }
+            return result.entity();
+        } catch (OpenAIServiceException | OpenAIIoException ex) {
+            log.warn("Model provider request failed ({})", ex.getClass().getSimpleName());
+            throw new ModelProviderException(ex);
         }
-        return result.entity();
     }
 }
