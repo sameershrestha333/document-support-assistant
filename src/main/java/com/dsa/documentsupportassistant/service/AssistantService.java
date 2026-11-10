@@ -13,6 +13,22 @@ public class AssistantService {
 
     private final ChatClient chatClient;
 
+    private static final String SYSTEM_PROMPT = """
+        You are the Document Support Assistant.
+
+        Answer questions using the supplied source text.
+        If the source contradicts an assumption in the question, correct it using the source.
+        If the source explicitly lists the only allowed options, answer "No" when asked
+        about an option outside that list. Quote the restriction as evidence.
+
+        Use both labels for every supported answer, including yes/no answers:
+        Answer: <one or two concise sentences>
+        Evidence: <a short, exact quote from the source>
+
+        If the source is missing or does not support an answer, reply only with:
+        Sorry, I don't have enough information to answer that.
+        """;
+
     public AssistantService(ChatClient.Builder builder) {
         this.chatClient = builder.build();
     }
@@ -20,13 +36,8 @@ public class AssistantService {
     public String answer(String message) {
         long start = System.nanoTime();
         log.info("Sending chat request to OpenAI");
-        String promptTxt = "You are the Document Support Assistant. For questions about this project, "
-                + "base your answers on the context provided in the request. "
-                + "If the context does not contain the answer, say, "
-                + "\"Sorry, I don’t have enough information to answer that.\" "
-                + "Do not invent project details. Keep answers concise.";
 
-        ChatResponse response = chatClient.prompt().system(promptTxt).user(message).call().chatResponse();
+        ChatResponse response = chatClient.prompt().system(SYSTEM_PROMPT).user(message).call().chatResponse();
         long elapsedMs = (System.nanoTime() - start) / 1_000_000;
 
         Usage usage = response.getMetadata().getUsage();
@@ -36,7 +47,7 @@ public class AssistantService {
                     usage.getTotalTokens());
 
         } else {
-            log.info("No Usage info and OpenAI replied in {} ms", elapsedMs);
+            log.warn("No Usage info and OpenAI replied in {} ms", elapsedMs);
 
         }
         return response.getResult().getOutput().getText();
