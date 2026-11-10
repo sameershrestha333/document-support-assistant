@@ -20,8 +20,13 @@ public class AssistantService {
     public String answer(String message) {
         long start = System.nanoTime();
         log.info("Sending chat request to OpenAI");
+        String promptTxt = "You are the Document Support Assistant. For questions about this project, "
+                + "base your answers on the context provided in the request. "
+                + "If the context does not contain the answer, say, "
+                + "\"Sorry, I don’t have enough information to answer that.\" "
+                + "Do not invent project details. Keep answers concise.";
 
-        ChatResponse response = chatClient.prompt().user(message).call().chatResponse();
+        ChatResponse response = chatClient.prompt().system(promptTxt).user(message).call().chatResponse();
         long elapsedMs = (System.nanoTime() - start) / 1_000_000;
 
         Usage usage = response.getMetadata().getUsage();
