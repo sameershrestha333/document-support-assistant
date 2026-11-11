@@ -78,6 +78,31 @@
 			<artifactId>pdfbox</artifactId>
 			<version>3.0.8</version>
 		</dependency>
+
+		<!-- JDBC support and JdbcTemplate -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+
+		<!-- PostgreSQL JDBC driver -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!-- Flyway database migrations -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-flyway</artifactId>
+		</dependency>
+
+		<!-- PostgreSQL support for Flyway -->
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
