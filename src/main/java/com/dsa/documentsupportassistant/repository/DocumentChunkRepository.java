@@ -1,10 +1,12 @@
 package com.dsa.documentsupportassistant.repository;
 
 import com.dsa.documentsupportassistant.dto.DocumentChunk;
+import com.dsa.documentsupportassistant.dto.RetrievedChunk;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Repository
 public class DocumentChunkRepository {
@@ -35,4 +37,27 @@ public class DocumentChunkRepository {
                 chunk.text(),
                 Arrays.toString(embedding));
     }
+
+
+    public List<RetrievedChunk> findSimilar(
+            String documentId, int indexVersion, float[] questionEmbedding, int limit) {
+
+        String sql = """
+            SELECT filename, page_number, chunk_index, chunk_text,
+                   embedding <=> CAST(? AS vector) AS distance
+            FROM document_chunks
+            WHERE document_id = ? AND index_version = ?
+            ORDER BY distance ASC, page_number ASC, chunk_index ASC
+            LIMIT ?
+            """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new RetrievedChunk(
+                rs.getString("filename"),
+                rs.getInt("page_number"),
+                rs.getInt("chunk_index"),
+                rs.getString("chunk_text"),
+                rs.getDouble("distance")
+        ), Arrays.toString(questionEmbedding), documentId, indexVersion, limit);
+    }
+
 }
