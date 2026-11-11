@@ -1,5 +1,6 @@
 package com.dsa.documentsupportassistant.service;
 
+import com.dsa.documentsupportassistant.dto.GroundedAnswer;
 import com.dsa.documentsupportassistant.dto.RetrievalRequest;
 import com.dsa.documentsupportassistant.dto.RetrievedChunk;
 import com.dsa.documentsupportassistant.repository.DocumentChunkRepository;
