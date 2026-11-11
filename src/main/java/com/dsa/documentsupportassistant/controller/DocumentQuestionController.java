@@ -1,5 +1,6 @@
 package com.dsa.documentsupportassistant.controller;
 
+import com.dsa.documentsupportassistant.dto.DocumentQuestionResponse;
 import com.dsa.documentsupportassistant.dto.GroundedAnswer;
 import com.dsa.documentsupportassistant.dto.RetrievalRequest;
 import com.dsa.documentsupportassistant.dto.RetrievedChunk;
@@ -23,7 +24,7 @@ public class DocumentQuestionController {
 
 
     @PostMapping("/api/documents/ask")
-    public GroundedAnswer ask(@Valid @RequestBody RetrievalRequest request) {
+    public DocumentQuestionResponse ask(@Valid @RequestBody RetrievalRequest request) {
 
         return documentQuestionService.ask(request);
     }

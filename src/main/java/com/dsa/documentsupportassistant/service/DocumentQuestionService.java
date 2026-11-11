@@ -1,12 +1,12 @@
 package com.dsa.documentsupportassistant.service;
 
-import com.dsa.documentsupportassistant.dto.GroundedAnswer;
-import com.dsa.documentsupportassistant.dto.RetrievalRequest;
+import com.dsa.documentsupportassistant.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -33,30 +33,56 @@ public class DocumentQuestionService {
     }
 
 
-    public GroundedAnswer ask(RetrievalRequest request) {
+    public DocumentQuestionResponse ask(RetrievalRequest request) {
         var chunks = documentRetrievalService.search(request);
         if (chunks.isEmpty()) {
-            return new GroundedAnswer(
-                    "Sorry, I don't have enough information to answer that.",
-                    "", false, ""
-            );
+            return unSupportedAnswer();
         }
+        var chunksById = new HashMap<String, RetrievedChunk>();
         var passages = new StringBuilder();
 
         for (int i = 0; i < chunks.size(); i++) {
+            String passageId = "P" + (i + 1);
+            RetrievedChunk chunk = chunks.get(i);
+            chunksById.put(passageId, chunk);
+
             passages.append("Passage P").append(i + 1).append('\n')
                     .append(chunks.get(i).text()).append("\n\n");
         }
+
+
         String prompt = "Question:\n" + request.question()
                 + "\n\nRetrieved passages:\n" + passages;
 
-        return chatClient.prompt()
+        GroundedAnswer result = chatClient.prompt()
                 .system(SYSTEM_PROMPT)
                 .user(prompt)
                 .call()
                 .entity(GroundedAnswer.class);
 
+        if (result == null || !result.supported()) {
+            return unSupportedAnswer();
+        }
 
+        RetrievedChunk citedChunk = chunksById.get(result.passageId());
+        if (citedChunk == null
+                || result.evidence() == null
+                || result.evidence().isBlank()
+                || !citedChunk.text().contains(result.evidence())) {
+            return unSupportedAnswer();
+        }
+
+
+        Citation citation = new Citation(result.passageId(), citedChunk.filename(), citedChunk.pageNumber());
+
+        return new DocumentQuestionResponse(
+                result.answer(), result.evidence(), true, citation);
+    }
+
+    private DocumentQuestionResponse unSupportedAnswer() {
+        return new DocumentQuestionResponse(
+                "Sorry, I don't have enough information to answer that.",
+                "", false, null);
     }
 
 }
