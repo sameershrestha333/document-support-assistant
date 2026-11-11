@@ -7,6 +7,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -21,6 +22,9 @@ public class DocumentQuestionService {
             set answer to "Sorry, I don't have enough information to answer that.",
             and leave evidence and passageId empty.
             Copy the passage ID exactly as shown, including the P prefix (for example, P1).
+            Check that the passages support the specific claim needed to answer the question.
+            A passage that only mentions the same topic is insufficient.
+            Use the fallback when the passages do not establish the requested detail.
             """;
 
     private final ChatClient chatClient;
@@ -39,17 +43,31 @@ public class DocumentQuestionService {
             return unSupportedAnswer();
         }
         var chunksById = new HashMap<String, RetrievedChunk>();
+        var seenTexts = new HashSet<String>();
+        int maxContextChars = 4_000;
+
         var passages = new StringBuilder();
 
-        for (int i = 0; i < chunks.size(); i++) {
-            String passageId = "P" + (i + 1);
-            RetrievedChunk chunk = chunks.get(i);
-            chunksById.put(passageId, chunk);
+        for (RetrievedChunk chunk : chunks) {
+            String text = chunk.text().strip();
+            if (text.isEmpty() || !seenTexts.add(text)) {
+                continue;
+            }
 
-            passages.append("Passage P").append(i + 1).append('\n')
-                    .append(chunks.get(i).text()).append("\n\n");
+            String passageId = "P" + (chunksById.size() + 1);
+            String passage = "Passage " + passageId + "\n" + text + "\n\n";
+
+            if (passages.length() + passage.length() > maxContextChars) {
+                continue;
+            }
+
+            chunksById.put(passageId, chunk);
+            passages.append(passage);
         }
 
+        if (chunksById.isEmpty()) {
+            return unSupportedAnswer();
+        }
 
         String prompt = "Question:\n" + request.question()
                 + "\n\nRetrieved passages:\n" + passages;
@@ -76,13 +94,13 @@ public class DocumentQuestionService {
         Citation citation = new Citation(result.passageId(), citedChunk.filename(), citedChunk.pageNumber());
 
         return new DocumentQuestionResponse(
-                result.answer(), result.evidence(), true, citation);
+                result.answer(), result.evidence(), true, citation, AnswerStatus.SUPPORTED);
     }
 
     private DocumentQuestionResponse unSupportedAnswer() {
         return new DocumentQuestionResponse(
                 "Sorry, I don't have enough information to answer that.",
-                "", false, null);
+                "", false, null,  AnswerStatus.INSUFFICIENT_EVIDENCE);
     }
 
 }

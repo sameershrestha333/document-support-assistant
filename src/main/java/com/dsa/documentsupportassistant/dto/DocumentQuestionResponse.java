@@ -4,5 +4,6 @@ public record DocumentQuestionResponse(
         String answer,
         String evidence,
         boolean supported,
-        Citation citation
+        Citation citation,
+        AnswerStatus status
 ) {}
