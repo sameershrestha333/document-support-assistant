@@ -1,0 +1,10 @@
+Document Upload Guide
+
+Supported file types
+The service accepts only PDF and TXT files.
+
+Upload limits
+The maximum upload size is 10 MB.
+
+Troubleshooting
+If an upload exceeds the limit, reduce the file size and try again.
