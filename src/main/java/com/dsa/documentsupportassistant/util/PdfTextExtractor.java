@@ -5,16 +5,20 @@ import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PdfTextExtractor {
     public List<DocumentPage> extract(Path pdfPath, String documentId) throws IOException {
-        List<DocumentPage> pages = new ArrayList<>();
-        String filename = pdfPath.getFileName().toString();
+        return extract(Files.readAllBytes(pdfPath), pdfPath.getFileName().toString(), documentId);
+    }
 
-        try (var pdf = Loader.loadPDF(pdfPath.toFile())) {
+    public List<DocumentPage> extract(byte[] pdfBytes, String filename, String documentId) throws IOException {
+        List<DocumentPage> pages = new ArrayList<>();
+
+        try (var pdf = Loader.loadPDF(pdfBytes)) {
             var stripper = new PDFTextStripper();
 
             for (int page = 1; page <= pdf.getNumberOfPages(); page++) {

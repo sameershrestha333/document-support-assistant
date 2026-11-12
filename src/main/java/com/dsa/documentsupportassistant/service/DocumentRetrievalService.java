@@ -24,7 +24,7 @@ public class DocumentRetrievalService {
 
     public List<RetrievedChunk> search(RetrievalRequest request) {
       float [] questionEmbedding =   embeddingService.embed(request.question());
-      return documentChunkRepository.findSimilar(request.documentId() , 1, questionEmbedding , 3);
+      return documentChunkRepository.findSimilar(request.documentId(), DocumentIndexingService.INDEX_VERSION, questionEmbedding, 5);
 
     }
 }

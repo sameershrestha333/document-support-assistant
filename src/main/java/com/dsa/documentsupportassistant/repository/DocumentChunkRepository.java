@@ -17,6 +17,14 @@ public class DocumentChunkRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    public boolean registerIndex(String documentId, int indexVersion) {
+        return jdbcTemplate.update("""
+                INSERT INTO indexed_documents (document_id, index_version)
+                VALUES (?, ?)
+                ON CONFLICT (document_id, index_version) DO NOTHING
+                """, documentId, indexVersion) == 1;
+    }
+
     public void save(DocumentChunk chunk, int indexVersion, float[] embedding) {
         jdbcTemplate.update("""
                 INSERT INTO document_chunks (
@@ -47,6 +55,11 @@ public class DocumentChunkRepository {
                    embedding <=> CAST(? AS vector) AS distance
             FROM document_chunks
             WHERE document_id = ? AND index_version = ?
+              AND EXISTS (
+                  SELECT 1 FROM indexed_documents d
+                  WHERE d.document_id = document_chunks.document_id
+                    AND d.index_version = document_chunks.index_version
+              )
             ORDER BY distance ASC, page_number ASC, chunk_index ASC
             LIMIT ?
             """;
