@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.security.Principal;
 
 @RestController
 public class DocumentRetrievalController {
@@ -20,9 +21,9 @@ public class DocumentRetrievalController {
     }
 
     @PostMapping("/api/retrieval/search")
-    public List<RetrievedChunk> search(@Valid @RequestBody RetrievalRequest request) {
+    public List<RetrievedChunk> search(@Valid @RequestBody RetrievalRequest request, Principal principal) {
 
-        return documentRetrievalService.search(request);
+        return documentRetrievalService.search(request, principal.getName());
     }
 
 }

@@ -87,7 +87,7 @@ public class ImportJobTools {
             return "Unavailable.";
         }
         try {
-            return TimeLimits.run(() -> retrievalService.search(new RetrievalRequest(guideId, error))
+            return TimeLimits.run(() -> retrievalService.searchSharedImportGuide(error)
                     .stream()
                     .filter(chunk -> !chunk.text().isBlank())
                     .findFirst()

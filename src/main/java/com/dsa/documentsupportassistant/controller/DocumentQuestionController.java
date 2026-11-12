@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.security.Principal;
 
 @RestController
 public class DocumentQuestionController {
@@ -24,9 +25,9 @@ public class DocumentQuestionController {
 
 
     @PostMapping("/api/documents/ask")
-    public DocumentQuestionResponse ask(@Valid @RequestBody RetrievalRequest request) {
+    public DocumentQuestionResponse ask(@Valid @RequestBody RetrievalRequest request, Principal principal) {
 
-        return documentQuestionService.ask(request);
+        return documentQuestionService.ask(request, principal.getName());
     }
 
 

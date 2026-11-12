@@ -37,8 +37,8 @@ public class DocumentQuestionService {
     }
 
 
-    public DocumentQuestionResponse ask(RetrievalRequest request) {
-        var chunks = documentRetrievalService.search(request);
+    public DocumentQuestionResponse ask(RetrievalRequest request, String owner) {
+        var chunks = documentRetrievalService.search(request, owner);
         if (chunks.isEmpty()) {
             return unSupportedAnswer();
         }

@@ -9,14 +9,15 @@ import java.nio.file.Path;
 
 public class DocumentIndexingDemo {
     public static void main(String[] args) throws IOException {
-        Path pdfPath = args.length == 0
-                ? Path.of("docs.samples", "import-guide.pdf")
-                : Path.of(args[0]);
+        if (args.length != 2) {
+            throw new IllegalArgumentException("Usage: DocumentIndexingDemo <pdf-path> <owner>");
+        }
+        Path pdfPath = Path.of(args[0]);
 
         try (var context = new SpringApplicationBuilder(DocumentSupportAssistantApplication.class)
                 .web(WebApplicationType.NONE)
                 .run()) {
-            String documentId = context.getBean(DocumentIndexingService.class).index(pdfPath);
+            String documentId = context.getBean(DocumentIndexingService.class).index(pdfPath, args[1]);
             System.out.println("Document ID: " + documentId);
         }
     }
