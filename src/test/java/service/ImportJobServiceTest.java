@@ -9,10 +9,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ImportJobServiceTest {
     private final ImportJobService service = new ImportJobService();
+    String user = "user";
+    String user2 = "user2";
 
     @Test
     void findsSuccessfulJob() {
-        var job = service.findById("JOB-101").orElseThrow();
+        var job = service.findByIdForOwner("JOB-101", user).orElseThrow();
 
         assertEquals(ImportJobStatus.SUCCEEDED, job.status());
         assertEquals("products.csv", job.filename());
@@ -20,21 +22,27 @@ public class ImportJobServiceTest {
 
     @Test
     void findsFailedJobWithErrorDetails() {
-        var job = service.findById("JOB-102").orElseThrow();
-
-        assertEquals(ImportJobStatus.FAILED, job.status());
-        assertEquals("Missing required column: sku", job.errorDetails());
+        assertTrue(service.findByIdForOwner("JOB-102", "user").isEmpty());
     }
 
     @Test
     void findsRunningJob() {
-        var job = service.findById("JOB-103").orElseThrow();
+        var job = service.findByIdForOwner("JOB-103", user).orElseThrow();
 
         assertEquals(ImportJobStatus.RUNNING, job.status());
     }
 
     @Test
     void returnsEmptyForUnknownJob() {
-        assertTrue(service.findById("JOB-999").isEmpty());
+        assertTrue(service.findByIdForOwner("JOB-999", "xyz").isEmpty());
+    }
+
+    @Test
+    void ownerCanReadFailedJobWithErrorDetails() {
+        var job = service.findByIdForOwner("JOB-102", "user2")
+                .orElseThrow();
+
+        assertEquals(ImportJobStatus.FAILED, job.status());
+        assertEquals("Missing required column: sku", job.errorDetails());
     }
 }
