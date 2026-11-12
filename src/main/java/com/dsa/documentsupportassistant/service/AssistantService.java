@@ -2,6 +2,7 @@ package com.dsa.documentsupportassistant.service;
 
 import com.dsa.documentsupportassistant.dto.DocumentAnswer;
 import com.dsa.documentsupportassistant.exception.ModelProviderException;
+import com.dsa.documentsupportassistant.tool.ImportJobTools;
 import com.openai.errors.OpenAIIoException;
 import com.openai.errors.OpenAIServiceException;
 import org.slf4j.Logger;
@@ -13,12 +14,16 @@ import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Service;
+import org.stringtemplate.v4.ST;
+
+import java.util.Map;
 
 @Service
 public class AssistantService {
     private static final Logger log = LoggerFactory.getLogger(AssistantService.class);
 
     private final ChatClient chatClient;
+    private final ImportJobTools importJobTools;
 
     private static final String SYSTEM_PROMPT = """
             You are the Document Support Assistant.
@@ -40,9 +45,13 @@ public class AssistantService {
             - Set supported to false.
             - Set answer to "Sorry, I don't have enough information to answer that."
             - Set evidence to an empty string.
+            
+            For questions about an import job’s status or failure, use getImportStatus. 
+            Base the answer on the tool result. If no job ID is provided, ask for it. For document questions,
+            follow the existing source and evidence rules.
             """;
 
-    public AssistantService(ChatClient.Builder builder) {
+    public AssistantService(ChatClient.Builder builder, ImportJobTools importJobTools) {
         ChatMemory memory = MessageWindowChatMemory.builder()
                 .maxMessages(10)
                 .build();
@@ -50,9 +59,10 @@ public class AssistantService {
         this.chatClient = builder
                 .defaultAdvisors(MessageChatMemoryAdvisor.builder(memory).build())
                 .build();
+        this.importJobTools = importJobTools;
     }
 
-    public DocumentAnswer answer(String conversationId, String message) {
+    public DocumentAnswer answer(String conversationId, String message, String username) {
         long start = System.nanoTime();
         log.info("Sending chat request to OpenAI");
         try {
@@ -60,7 +70,10 @@ public class AssistantService {
             var result = chatClient.prompt()
                     .system(SYSTEM_PROMPT)
                     .user(message)
-                    .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, conversationId))
+                    .advisors(advisor -> advisor.param(
+                            ChatMemory.CONVERSATION_ID, username + ":" + conversationId))
+                    .tools(importJobTools)
+                    .toolContext(Map.of("username", username))
                     .call()
                     .responseEntity(DocumentAnswer.class);
 

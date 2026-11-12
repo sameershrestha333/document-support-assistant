@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
+
 @RestController
 public class ChatController {
 
@@ -18,8 +20,8 @@ public class ChatController {
     }
 
     @PostMapping("/api/chat")
-    public DocumentAnswer chat(@Valid @RequestBody ChatRequest request) {
-        return assistantService.answer(request.conversationId(), request.message());
+    public DocumentAnswer chat(@Valid @RequestBody ChatRequest request, Principal principal) {
+        return assistantService.answer(request.conversationId(), request.message(), principal.getName());
     }
 
 
