@@ -51,6 +51,16 @@ public class AssistantService {
             For questions about an import job’s status or failure, use getImportStatus. 
             Base the answer on the tool result. If no job ID is provided, ask for it. For document questions,
             follow the existing source and evidence rules.
+
+            For import jobs, distinguish recorded job facts from suggested next steps.
+            Set supported to true when the tool returns job facts, even if guidance is unavailable.
+            Give a next step only if the guide excerpt directly supports it, and quote that
+            excerpt in evidence. Otherwise leave evidence empty and say guidance is unavailable
+            if the user asked for it. If the tool finds no job, set supported to false,
+            leave evidence empty, and report that no job was found.
+            
+            If the user asks what to check and the guide provides a next step, include that step in answer. 
+            In evidence, quote only the supporting guide passage.
             """;
 
     public AssistantService(ChatClient.Builder builder, ImportJobTools importJobTools) {

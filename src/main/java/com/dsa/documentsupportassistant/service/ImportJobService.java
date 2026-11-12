@@ -18,7 +18,10 @@ public class ImportJobService {
                     ImportJobStatus.FAILED, "Missing required column: sku"),
             "JOB-103", new ImportJob(
                     "JOB-103", "user", "prices.csv",
-                    ImportJobStatus.RUNNING, null)
+                    ImportJobStatus.RUNNING, null),
+            "JOB-123", new ImportJob(
+                    "JOB-123", "user2", "inventory.csv",
+                    ImportJobStatus.FAILED, "Missing required column: sku")
     );
 
     public Optional<ImportJob> findByIdForOwner(String jobId, String username) {

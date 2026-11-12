@@ -1,6 +1,10 @@
 package com.dsa.documentsupportassistant.tool;
 
 import com.dsa.documentsupportassistant.dto.ImportJob;
+import com.dsa.documentsupportassistant.dto.ImportJobStatus;
+import com.dsa.documentsupportassistant.dto.RetrievalRequest;
+import com.dsa.documentsupportassistant.service.DocumentRetrievalService;
+import org.springframework.beans.factory.annotation.Value;
 import com.dsa.documentsupportassistant.exception.ChatLimitException;
 import com.dsa.documentsupportassistant.service.ImportJobService;
 import com.dsa.documentsupportassistant.service.TimeLimits;
@@ -16,7 +20,14 @@ public class ImportJobTools {
 
     private final ImportJobService importJobService;
 
-    public ImportJobTools(ImportJobService importJobService) {
+    private final DocumentRetrievalService retrievalService;
+    private final String guideId;
+
+    public ImportJobTools(ImportJobService importJobService,
+                          DocumentRetrievalService retrievalService,
+                          @Value("${app.import-guide.document-id:}") String guideId) {
+        this.retrievalService = retrievalService;
+        this.guideId = guideId;
         this.importJobService = importJobService;
     }
 
@@ -51,16 +62,42 @@ public class ImportJobTools {
         }
 
         String result = ownedJob
-                .map(job -> "File: " + job.filename()
+                .map(job -> "Job facts: File: " + job.filename()
                         + "; status: " + job.status()
                         + (job.errorDetails() == null
                         ? ""
                         : "; error: " + job.errorDetails()))
                 .orElse("No import job found for that ID.");
 
+        if (ownedJob.isPresent()) {
+            ImportJob job = ownedJob.get();
+            if (job.status() == ImportJobStatus.FAILED && job.errorDetails() != null) {
+                result += "\nGuide excerpt: " + findGuidance(job.errorDetails());
+            }
+        }
+
         int maxLength = 500;
         return result.length() <= maxLength
                 ? result
                 : result.substring(0, maxLength - 3) + "...";
+    }
+
+    private String findGuidance(String error) {
+        if (guideId.isBlank()) {
+            return "Unavailable.";
+        }
+        try {
+            return TimeLimits.run(() -> retrievalService.search(new RetrievalRequest(guideId, error))
+                    .stream()
+                    .filter(chunk -> !chunk.text().isBlank())
+                    .findFirst()
+                    .map(chunk -> "Page " + chunk.pageNumber() + ": " + chunk.text().strip())
+                    .orElse("Unavailable."), 2, "GUIDE_LOOKUP_TIMEOUT");
+        } catch (ChatLimitException ex) {
+            if ("GUIDE_LOOKUP_TIMEOUT".equals(ex.code())) {
+                return "Unavailable.";
+            }
+            throw ex;
+        }
     }
 }

@@ -10,7 +10,7 @@ import java.nio.file.Path;
 public class DocumentIndexingDemo {
     public static void main(String[] args) throws IOException {
         Path pdfPath = args.length == 0
-                ? Path.of("docs.samples", "sample-input-file.pdf")
+                ? Path.of("docs.samples", "import-guide.pdf")
                 : Path.of(args[0]);
 
         try (var context = new SpringApplicationBuilder(DocumentSupportAssistantApplication.class)
