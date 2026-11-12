@@ -14,7 +14,9 @@ import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Service;
-import org.stringtemplate.v4.ST;
+import com.dsa.documentsupportassistant.exception.ChatLimitException;
+import org.springframework.ai.converter.BeanOutputConverter;
+import org.springframework.ai.model.tool.ToolCallLimitExceededException;
 
 import java.util.Map;
 
@@ -63,23 +65,34 @@ public class AssistantService {
     }
 
     public DocumentAnswer answer(String conversationId, String message, String username) {
+        return TimeLimits.run(() -> answerInternal(conversationId, message, username),
+                15, "CHAT_TIMEOUT");
+    }
+
+    private DocumentAnswer answerInternal(String conversationId, String message, String username) {
         long start = System.nanoTime();
         log.info("Sending chat request to OpenAI");
         try {
 
-            var result = chatClient.prompt()
-                    .system(SYSTEM_PROMPT)
+            var converter = new BeanOutputConverter<>(DocumentAnswer.class);
+            ChatResponse response = chatClient.prompt()
+                    .system(SYSTEM_PROMPT + "\n\n" + converter.getFormat())
                     .user(message)
                     .advisors(advisor -> advisor.param(
                             ChatMemory.CONVERSATION_ID, username + ":" + conversationId))
                     .tools(importJobTools)
                     .toolContext(Map.of("username", username))
                     .call()
-                    .responseEntity(DocumentAnswer.class);
+                    .chatResponse();
 
             long elapsedMs = (System.nanoTime() - start) / 1_000_000;
 
-            ChatResponse response = result.getResponse();
+            var generation = response.getResult();
+            if (ToolCallLimitExceededException.FINISH_REASON.equals(
+                    generation.getMetadata().getFinishReason())) {
+                throw new ChatLimitException("TOOL_CALL_LIMIT",
+                        "The assistant reached the tool call limit.");
+            }
 
             Usage usage = response.getMetadata().getUsage();
 
@@ -91,7 +104,7 @@ public class AssistantService {
                 log.warn("No Usage info and OpenAI replied in {} ms", elapsedMs);
 
             }
-            return result.entity();
+            return converter.convert(generation.getOutput().getText());
         } catch (OpenAIServiceException | OpenAIIoException ex) {
             log.warn("Model provider request failed ({})", ex.getClass().getSimpleName());
             throw new ModelProviderException(ex);

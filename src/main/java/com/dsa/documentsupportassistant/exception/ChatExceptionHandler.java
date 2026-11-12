@@ -17,5 +17,15 @@ public class ChatExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(ChatLimitException.class)
+    public ResponseEntity<ChatError> handleChatLimit(ChatLimitException ex) {
+        HttpStatus status = switch (ex.code()) {
+            case "CHAT_TIMEOUT" -> HttpStatus.GATEWAY_TIMEOUT;
+            case "CHAT_INTERRUPTED" -> HttpStatus.SERVICE_UNAVAILABLE;
+            default -> HttpStatus.BAD_GATEWAY;
+        };
+        return ResponseEntity.status(status).body(new ChatError(ex.code(), ex.getMessage()));
+    }
+
     public record ChatError(String code, String message) {}
 }
