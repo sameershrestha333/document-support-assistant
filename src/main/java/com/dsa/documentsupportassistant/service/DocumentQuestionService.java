@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +28,9 @@ public class DocumentQuestionService {
             A passage that only mentions the same topic is insufficient.
             Use the fallback when the passages do not establish the requested detail.
             """;
+
+    @Value("${APP_DOCUMENT_PROMPT:baseline}")
+    private String promptVariant = "baseline";
 
     private final ChatClient chatClient;
 
@@ -73,15 +77,22 @@ public class DocumentQuestionService {
         String prompt = "Question:\n" + request.question()
                 + "\n\nRetrieved passages:\n" + passages;
 
+        String systemPrompt = switch (promptVariant) {
+            case "baseline" -> SYSTEM_PROMPT;
+            case "candidate" -> SYSTEM_PROMPT
+                    + "For yes/no questions, start with Yes or No when the supplied passage supports it. Cite that passage.";
+            default -> throw new IllegalStateException("APP_DOCUMENT_PROMPT must be baseline or candidate");
+        };
+
         long modelStart = System.nanoTime();
         var response = chatClient.prompt()
-                .system(SYSTEM_PROMPT)
+                .system(systemPrompt)
                 .user(prompt)
                 .call()
                 .responseEntity(GroundedAnswer.class);
         var usage = response.response() == null ? null : response.response().getMetadata().getUsage();
-        log.info("documentModelMs={} inputTokens={} outputTokens={} totalTokens={}",
-                (System.nanoTime() - modelStart) / 1_000_000,
+        log.info("promptVariant={} documentModelMs={} inputTokens={} outputTokens={} totalTokens={}",
+                promptVariant, (System.nanoTime() - modelStart) / 1_000_000,
                 usage == null ? null : usage.getPromptTokens(),
                 usage == null ? null : usage.getCompletionTokens(),
                 usage == null ? null : usage.getTotalTokens());
