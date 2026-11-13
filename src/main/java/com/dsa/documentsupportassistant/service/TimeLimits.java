@@ -3,6 +3,7 @@ package com.dsa.documentsupportassistant.service;
 import com.dsa.documentsupportassistant.exception.ChatLimitException;
 
 import java.util.concurrent.Callable;
+import com.dsa.documentsupportassistant.config.LogContext;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
@@ -12,7 +13,7 @@ public final class TimeLimits {
     private TimeLimits() {}
 
     public static <T> T run(Callable<T> operation, long seconds, String timeoutCode) {
-        FutureTask<T> task = new FutureTask<>(operation);
+        FutureTask<T> task = new FutureTask<>(LogContext.capture(operation));
         Thread.startVirtualThread(task);
         try {
             return task.get(seconds, TimeUnit.SECONDS);

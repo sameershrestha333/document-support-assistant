@@ -120,6 +120,7 @@ public class DocumentQuestionService {
         var mapper = new ObjectMapper();
         var answerField = Pattern.compile("^\\s*(?:```json\\s*)?\\{\\s*\"answer\"\\s*:\\s*(\"(?:[^\"\\\\]|\\\\.)*\")", Pattern.DOTALL);
         boolean previewSent = false;
+        long modelStart = System.nanoTime();
         try (var parts = chatClient.prompt().system(systemPrompt())
                 .user(prepared.prompt() + "\n\n" + converter.getFormat()
                         + "\nPut the answer field first.")
@@ -139,6 +140,8 @@ public class DocumentQuestionService {
                 }
             }
         }
+        log.info("promptVariant={} streamingModelMs={}", promptVariant,
+                (System.nanoTime() - modelStart) / 1_000_000);
         return verifyAnswer(converter.convert(json.toString()), prepared.chunks());
     }
 

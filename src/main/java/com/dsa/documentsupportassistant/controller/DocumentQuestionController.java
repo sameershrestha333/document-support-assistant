@@ -4,6 +4,7 @@ import com.dsa.documentsupportassistant.dto.DocumentQuestionResponse;
 import com.dsa.documentsupportassistant.dto.RetrievalRequest;
 import com.dsa.documentsupportassistant.service.DocumentQuestionService;
 import jakarta.validation.Valid;
+import com.dsa.documentsupportassistant.config.LogContext;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,7 +41,7 @@ public class DocumentQuestionController {
     public SseEmitter stream(@Valid @RequestBody RetrievalRequest request, Principal principal) {
         var prepared = documentQuestionService.prepareQuestion(request, principal.getName());
         var emitter = new SseEmitter(60_000L);
-        var task = streams.submit(() -> {
+        var task = streams.submit(LogContext.capture(() -> {
             try {
                 var answer = documentQuestionService.streamAnswer(prepared,
                         text -> send(emitter, "delta", Map.of("text", text)));
@@ -56,7 +57,8 @@ public class DocumentQuestionController {
                     emitter.completeWithError(disconnected.getCause());
                 }
             }
-        });
+            return null;
+        }));
         emitter.onTimeout(() -> task.cancel(true));
         emitter.onError(error -> task.cancel(true));
         emitter.onCompletion(() -> task.cancel(true));
