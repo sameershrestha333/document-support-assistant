@@ -1,15 +1,12 @@
 package com.dsa.documentsupportassistant.service;
 
-import com.dsa.documentsupportassistant.dto.GroundedAnswer;
 import com.dsa.documentsupportassistant.dto.RetrievalRequest;
 import com.dsa.documentsupportassistant.dto.RetrievedChunk;
 import com.dsa.documentsupportassistant.repository.DocumentChunkRepository;
-import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -31,11 +28,21 @@ public class DocumentRetrievalService {
     }
 
     public List<RetrievedChunk> search(RetrievalRequest request, String owner) {
+        requireAccess(request, owner);
+        return searchChunks(request, owner);
+    }
+
+    public List<RetrievedChunk> searchHybrid(RetrievalRequest request, String owner) {
+        requireAccess(request, owner);
+        return documentChunkRepository.findHybrid(request.documentId(), DocumentIndexingService.INDEX_VERSION,
+                embeddingService.embed(request.question()), request.question(), owner);
+    }
+
+    private void requireAccess(RetrievalRequest request, String owner) {
         if (owner == null || owner.isBlank()
                 || !documentChunkRepository.hasAccess(request.documentId(), DocumentIndexingService.INDEX_VERSION, owner)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found");
         }
-        return searchChunks(request, owner);
     }
 
     public List<RetrievedChunk> searchSharedImportGuide(String question) {

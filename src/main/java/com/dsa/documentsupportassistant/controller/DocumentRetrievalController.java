@@ -6,6 +6,9 @@ import com.dsa.documentsupportassistant.service.DocumentRetrievalService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -21,9 +24,15 @@ public class DocumentRetrievalController {
     }
 
     @PostMapping("/api/retrieval/search")
-    public List<RetrievedChunk> search(@Valid @RequestBody RetrievalRequest request, Principal principal) {
+    public List<RetrievedChunk> search(@Valid @RequestBody RetrievalRequest request, Principal principal,
+                                       @RequestParam(defaultValue = "vector") String mode) {
 
-        return documentRetrievalService.search(request, principal.getName());
+        if (!"vector".equals(mode) && !"hybrid".equals(mode)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "mode must be vector or hybrid");
+        }
+        return "hybrid".equals(mode)
+                ? documentRetrievalService.searchHybrid(request, principal.getName())
+                : documentRetrievalService.search(request, principal.getName());
     }
 
 }

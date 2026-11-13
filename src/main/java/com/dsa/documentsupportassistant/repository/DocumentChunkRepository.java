@@ -93,4 +93,53 @@ public class DocumentChunkRepository {
         ), Arrays.toString(questionEmbedding), documentId, indexVersion, owner, owner, limit);
     }
 
+    public List<RetrievedChunk> findHybrid(String documentId, int indexVersion,
+                                          float[] embedding, String question, String owner) {
+        return jdbcTemplate.query("""
+                WITH scope AS NOT MATERIALIZED (
+                    SELECT c.*
+                    FROM document_chunks c
+                    JOIN indexed_documents d USING (document_id, index_version)
+                    JOIN document_access a USING (document_id, index_version)
+                    WHERE c.document_id = ? AND c.index_version = ? AND a.owner_username = ?
+                ),
+                query AS (
+                    SELECT CAST(? AS vector) AS embedding,
+                           COALESCE((
+                               SELECT to_tsquery('simple', string_agg(quote_literal(term), ' | '))
+                               FROM unnest(tsvector_to_array(to_tsvector('simple', ?))) AS terms(term)
+                           ), CAST('' AS tsquery)) AS keywords
+                ),
+                vector_hits AS (
+                    SELECT page_number, chunk_index, row_number() OVER (
+                        ORDER BY s.embedding <=> q.embedding, page_number, chunk_index
+                    ) AS rank
+                    FROM scope s CROSS JOIN query q
+                    ORDER BY rank LIMIT 20
+                ),
+                keyword_hits AS (
+                    SELECT page_number, chunk_index, row_number() OVER (
+                        ORDER BY ts_rank(to_tsvector('simple', chunk_text), q.keywords) DESC,
+                                 page_number, chunk_index
+                    ) AS rank
+                    FROM scope s CROSS JOIN query q
+                    WHERE to_tsvector('simple', chunk_text) @@ q.keywords
+                    ORDER BY rank LIMIT 20
+                ),
+                scores AS (
+                    SELECT page_number, chunk_index, sum(1.0 / (60 + rank)) AS score
+                    FROM (SELECT * FROM vector_hits UNION ALL SELECT * FROM keyword_hits) hits
+                    GROUP BY page_number, chunk_index
+                )
+                SELECT filename, page_number, chunk_index, chunk_text,
+                       s.embedding <=> q.embedding AS distance
+                FROM scope s JOIN scores USING (page_number, chunk_index)
+                CROSS JOIN query q
+                ORDER BY score DESC, distance, page_number, chunk_index
+                LIMIT 5
+                """, (rs, rowNum) -> new RetrievedChunk(
+                rs.getString("filename"), rs.getInt("page_number"), rs.getInt("chunk_index"),
+                rs.getString("chunk_text"), rs.getDouble("distance")),
+                documentId, indexVersion, owner, Arrays.toString(embedding), question);
+    }
 }
