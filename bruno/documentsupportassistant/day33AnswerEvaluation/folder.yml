@@ -1,0 +1,7 @@
+info:
+  name: Day 33 Answer Evaluation
+  type: folder
+  seq: 33
+
+request:
+  auth: inherit
