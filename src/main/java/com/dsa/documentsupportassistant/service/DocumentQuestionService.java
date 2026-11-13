@@ -12,6 +12,7 @@ import java.util.List;
 
 @Service
 public class DocumentQuestionService {
+
     private static final Logger log = LoggerFactory.getLogger(DocumentQuestionService.class);
     private static final String SYSTEM_PROMPT = """
             Answer the question using only facts supported by the supplied passages.
@@ -72,11 +73,19 @@ public class DocumentQuestionService {
         String prompt = "Question:\n" + request.question()
                 + "\n\nRetrieved passages:\n" + passages;
 
-        GroundedAnswer result = chatClient.prompt()
+        long modelStart = System.nanoTime();
+        var response = chatClient.prompt()
                 .system(SYSTEM_PROMPT)
                 .user(prompt)
                 .call()
-                .entity(GroundedAnswer.class);
+                .responseEntity(GroundedAnswer.class);
+        var usage = response.response() == null ? null : response.response().getMetadata().getUsage();
+        log.info("documentModelMs={} inputTokens={} outputTokens={} totalTokens={}",
+                (System.nanoTime() - modelStart) / 1_000_000,
+                usage == null ? null : usage.getPromptTokens(),
+                usage == null ? null : usage.getCompletionTokens(),
+                usage == null ? null : usage.getTotalTokens());
+        GroundedAnswer result = response.entity();
 
         if (result == null || !result.supported()) {
             return unSupportedAnswer();

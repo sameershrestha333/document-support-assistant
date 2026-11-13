@@ -107,11 +107,11 @@ public class AssistantService {
             Usage usage = response.getMetadata().getUsage();
 
             if (usage != null) {
-                log.info("OpenAI replied in {} ms (input: {} , output: {} , total: {}) ", elapsedMs, usage.getPromptTokens(), usage.getCompletionTokens(),
+                log.info("chatWorkflowMs={} responseInputTokens={} responseOutputTokens={} responseTotalTokens={}", elapsedMs, usage.getPromptTokens(), usage.getCompletionTokens(),
                         usage.getTotalTokens());
 
             } else {
-                log.warn("No Usage info and OpenAI replied in {} ms", elapsedMs);
+                log.warn("chatWorkflowMs={} response token usage unavailable", elapsedMs);
 
             }
             return converter.convert(generation.getOutput().getText());

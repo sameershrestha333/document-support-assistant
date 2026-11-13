@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ImportJobTools {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ImportJobTools.class);
+
 
     private final ImportJobService importJobService;
 
@@ -49,6 +51,7 @@ public class ImportJobTools {
             return "Import job lookup requires authentication.";
         }
 
+        long lookupStart = System.nanoTime();
         Optional<ImportJob> ownedJob;
         try {
             ownedJob = TimeLimits.run(
@@ -59,6 +62,8 @@ public class ImportJobTools {
                 return "The import job lookup timed out.";
             }
             throw ex;
+        } finally {
+            log.info("tool=getImportStatus jobLookupMs={}", (System.nanoTime() - lookupStart) / 1_000_000);
         }
 
         String result = ownedJob
@@ -72,7 +77,12 @@ public class ImportJobTools {
         if (ownedJob.isPresent()) {
             ImportJob job = ownedJob.get();
             if (job.status() == ImportJobStatus.FAILED && job.errorDetails() != null) {
-                result += "\nGuide excerpt: " + findGuidance(job.errorDetails());
+                long guideStart = System.nanoTime();
+                try {
+                    result += "\nGuide excerpt: " + findGuidance(job.errorDetails());
+                } finally {
+                    log.info("tool=getImportStatus guideLookupMs={}", (System.nanoTime() - guideStart) / 1_000_000);
+                }
             }
         }
 

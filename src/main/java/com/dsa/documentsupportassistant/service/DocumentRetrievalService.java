@@ -12,6 +12,8 @@ import java.util.List;
 
 @Service
 public class DocumentRetrievalService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DocumentRetrievalService.class);
+
 
     private final DocumentChunkRepository documentChunkRepository;
 
@@ -34,8 +36,7 @@ public class DocumentRetrievalService {
 
     public List<RetrievedChunk> searchHybrid(RetrievalRequest request, String owner) {
         requireAccess(request, owner);
-        return documentChunkRepository.findHybrid(request.documentId(), DocumentIndexingService.INDEX_VERSION,
-                embeddingService.embed(request.question()), request.question(), owner);
+        return searchChunks(request, owner, true);
     }
 
     private void requireAccess(RetrievalRequest request, String owner) {
@@ -50,8 +51,19 @@ public class DocumentRetrievalService {
     }
 
     private List<RetrievedChunk> searchChunks(RetrievalRequest request, String owner) {
-      float [] questionEmbedding =   embeddingService.embed(request.question());
-      return documentChunkRepository.findSimilar(request.documentId(), DocumentIndexingService.INDEX_VERSION, questionEmbedding, 5, owner);
+        return searchChunks(request, owner, false);
+    }
 
+    private List<RetrievedChunk> searchChunks(RetrievalRequest request, String owner, boolean hybrid) {
+        long start = System.nanoTime();
+        float[] embedding = embeddingService.embed(request.question());
+        long searchStart = System.nanoTime();
+        int version = DocumentIndexingService.INDEX_VERSION;
+        List<RetrievedChunk> chunks = hybrid
+                ? documentChunkRepository.findHybrid(request.documentId(), version, embedding, request.question(), owner)
+                : documentChunkRepository.findSimilar(request.documentId(), version, embedding, 5, owner);
+        log.info("retrievalMode={} embeddingMs={} searchMs={} chunks={}", hybrid ? "hybrid" : "vector",
+                (searchStart - start) / 1_000_000, (System.nanoTime() - searchStart) / 1_000_000, chunks.size());
+        return chunks;
     }
 }
