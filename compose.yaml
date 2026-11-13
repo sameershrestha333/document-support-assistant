@@ -1,0 +1,32 @@
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_DB: dsa
+      POSTGRES_USER: dsa
+      POSTGRES_PASSWORD: "${DSA_DB_PASSWORD:?Set DSA_DB_PASSWORD}"
+    volumes:
+      - compose-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "dsa", "-d", "dsa"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/dsa
+      DSA_DB_PASSWORD: "${DSA_DB_PASSWORD:?Set DSA_DB_PASSWORD}"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:?Set OPENAI_API_KEY}"
+      OPENAI_CHAT_MODEL: "${OPENAI_CHAT_MODEL:?Set OPENAI_CHAT_MODEL}"
+      APP_TEST_PASSWORD: "${APP_TEST_PASSWORD:?Set APP_TEST_PASSWORD}"
+      APP_TEST_PASSWORD_2: "${APP_TEST_PASSWORD_2:?Set APP_TEST_PASSWORD_2}"
+
+volumes:
+  compose-db:
