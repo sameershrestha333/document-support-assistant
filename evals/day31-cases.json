@@ -1,0 +1,683 @@
+{
+  "cases": [
+    {
+      "id": "DOCUMENT-1",
+      "category": "document",
+      "split": "tuning",
+      "question": "What is the maximum upload size?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": true,
+        "facts": [
+          "10 MB"
+        ],
+        "evidence": [
+          "The maximum upload size is 10 MB."
+        ]
+      }
+    },
+    {
+      "id": "DOCUMENT-2",
+      "category": "document",
+      "split": "tuning",
+      "question": "Which file types are accepted?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": true,
+        "facts": [
+          "PDF and TXT only"
+        ],
+        "evidence": [
+          "The service accepts only PDF and TXT files."
+        ]
+      }
+    },
+    {
+      "id": "DOCUMENT-3",
+      "category": "document",
+      "split": "tuning",
+      "question": "Can I upload DOCX?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": true,
+        "facts": [
+          "DOCX is not accepted"
+        ],
+        "evidence": [
+          "The service accepts only PDF and TXT files."
+        ]
+      }
+    },
+    {
+      "id": "DOCUMENT-4",
+      "category": "document",
+      "split": "tuning",
+      "question": "Can I upload PDF?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": true,
+        "facts": [
+          "PDF is accepted"
+        ],
+        "evidence": [
+          "The service accepts only PDF and TXT files."
+        ]
+      }
+    },
+    {
+      "id": "DOCUMENT-5",
+      "category": "document",
+      "split": "tuning",
+      "question": "Can I upload TXT?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": true,
+        "facts": [
+          "TXT is accepted"
+        ],
+        "evidence": [
+          "The service accepts only PDF and TXT files."
+        ]
+      }
+    },
+    {
+      "id": "DOCUMENT-6",
+      "category": "document",
+      "split": "tuning",
+      "question": "Can I upload ZIP?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": true,
+        "facts": [
+          "ZIP is not accepted"
+        ],
+        "evidence": [
+          "The service accepts only PDF and TXT files."
+        ]
+      }
+    },
+    {
+      "id": "DOCUMENT-7",
+      "category": "document",
+      "split": "tuning",
+      "question": "Is 12 MB over the limit?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": true,
+        "facts": [
+          "12 MB exceeds 10 MB"
+        ],
+        "evidence": [
+          "The maximum upload size is 10 MB."
+        ]
+      }
+    },
+    {
+      "id": "DOCUMENT-8",
+      "category": "document",
+      "split": "tuning",
+      "question": "Is 9 MB within the size limit?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": true,
+        "facts": [
+          "9 MB is within 10 MB"
+        ],
+        "evidence": [
+          "The maximum upload size is 10 MB."
+        ]
+      }
+    },
+    {
+      "id": "DOCUMENT-9",
+      "category": "document",
+      "split": "held-out",
+      "question": "What should I do if my file exceeds the limit?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": true,
+        "facts": [
+          "Reduce the file size and try again"
+        ],
+        "evidence": [
+          "If an upload exceeds the limit, reduce the file size and try again."
+        ]
+      }
+    },
+    {
+      "id": "DOCUMENT-10",
+      "category": "document",
+      "split": "held-out",
+      "question": "What is the limit and what formats are accepted?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": true,
+        "facts": [
+          "10 MB",
+          "PDF and TXT only"
+        ],
+        "evidence": [
+          "The maximum upload size is 10 MB.",
+          "The service accepts only PDF and TXT files."
+        ]
+      }
+    },
+    {
+      "id": "PARAPHRASE-1",
+      "category": "paraphrase",
+      "split": "tuning",
+      "question": "How large can my file be?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": true,
+        "facts": [
+          "10 MB"
+        ],
+        "evidence": [
+          "The maximum upload size is 10 MB."
+        ]
+      }
+    },
+    {
+      "id": "PARAPHRASE-2",
+      "category": "paraphrase",
+      "split": "tuning",
+      "question": "What's the biggest attachment allowed?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": true,
+        "facts": [
+          "10 MB"
+        ],
+        "evidence": [
+          "The maximum upload size is 10 MB."
+        ]
+      }
+    },
+    {
+      "id": "PARAPHRASE-3",
+      "category": "paraphrase",
+      "split": "tuning",
+      "question": "Could I submit a Word document?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": true,
+        "facts": [
+          "DOCX is not accepted"
+        ],
+        "evidence": [
+          "The service accepts only PDF and TXT files."
+        ]
+      }
+    },
+    {
+      "id": "PARAPHRASE-4",
+      "category": "paraphrase",
+      "split": "tuning",
+      "question": "Are plain text files supported?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": true,
+        "facts": [
+          "TXT is accepted"
+        ],
+        "evidence": [
+          "The service accepts only PDF and TXT files."
+        ]
+      }
+    },
+    {
+      "id": "PARAPHRASE-5",
+      "category": "paraphrase",
+      "split": "tuning",
+      "question": "Is an 11 MB PDF too large?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": true,
+        "facts": [
+          "11 MB exceeds 10 MB"
+        ],
+        "evidence": [
+          "The maximum upload size is 10 MB."
+        ]
+      }
+    },
+    {
+      "id": "PARAPHRASE-6",
+      "category": "paraphrase",
+      "split": "tuning",
+      "question": "My file is too big. What now?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": true,
+        "facts": [
+          "Reduce the file size and try again"
+        ],
+        "evidence": [
+          "If an upload exceeds the limit, reduce the file size and try again."
+        ]
+      }
+    },
+    {
+      "id": "PARAPHRASE-7",
+      "category": "paraphrase",
+      "split": "held-out",
+      "question": "Can I send a text file and a PDF?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": true,
+        "facts": [
+          "Both PDF and TXT are supported formats"
+        ],
+        "evidence": [
+          "The service accepts only PDF and TXT files."
+        ]
+      }
+    },
+    {
+      "id": "PARAPHRASE-8",
+      "category": "paraphrase",
+      "split": "held-out",
+      "question": "Which formats does the upload service take?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": true,
+        "facts": [
+          "PDF and TXT only"
+        ],
+        "evidence": [
+          "The service accepts only PDF and TXT files."
+        ]
+      }
+    },
+    {
+      "id": "UNSUPPORTED-1",
+      "category": "unsupported",
+      "split": "tuning",
+      "question": "How long are uploads retained?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": false,
+        "status": "INSUFFICIENT_EVIDENCE",
+        "citation": null
+      }
+    },
+    {
+      "id": "UNSUPPORTED-2",
+      "category": "unsupported",
+      "split": "tuning",
+      "question": "Can I upload multiple files at once?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": false,
+        "status": "INSUFFICIENT_EVIDENCE",
+        "citation": null
+      }
+    },
+    {
+      "id": "UNSUPPORTED-3",
+      "category": "unsupported",
+      "split": "tuning",
+      "question": "What encryption is used?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": false,
+        "status": "INSUFFICIENT_EVIDENCE",
+        "citation": null
+      }
+    },
+    {
+      "id": "UNSUPPORTED-4",
+      "category": "unsupported",
+      "split": "tuning",
+      "question": "What is the upload timeout?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": false,
+        "status": "INSUFFICIENT_EVIDENCE",
+        "citation": null
+      }
+    },
+    {
+      "id": "UNSUPPORTED-5",
+      "category": "unsupported",
+      "split": "tuning",
+      "question": "Does the service scan uploads for malware?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": false,
+        "status": "INSUFFICIENT_EVIDENCE",
+        "citation": null
+      }
+    },
+    {
+      "id": "UNSUPPORTED-6",
+      "category": "unsupported",
+      "split": "held-out",
+      "question": "How many uploads can I make per day?",
+      "user": "user",
+      "endpoint": "/api/documents/ask",
+      "document": "sample-input-file.pdf",
+      "expected": {
+        "supported": false,
+        "status": "INSUFFICIENT_EVIDENCE",
+        "citation": null
+      }
+    },
+    {
+      "id": "JOB-1",
+      "category": "job",
+      "split": "tuning",
+      "question": "Did JOB-101 succeed?",
+      "user": "user",
+      "endpoint": "/api/chat",
+      "expected": {
+        "facts": [
+          "SUCCEEDED"
+        ],
+        "tool": {
+          "name": "getImportStatus",
+          "arguments": {
+            "jobId": "JOB-101"
+          }
+        }
+      }
+    },
+    {
+      "id": "JOB-2",
+      "category": "job",
+      "split": "tuning",
+      "question": "Why did JOB-102 fail?",
+      "user": "user2",
+      "endpoint": "/api/chat",
+      "expected": {
+        "facts": [
+          "Missing required column: sku"
+        ],
+        "tool": {
+          "name": "getImportStatus",
+          "arguments": {
+            "jobId": "JOB-102"
+          }
+        }
+      }
+    },
+    {
+      "id": "JOB-3",
+      "category": "job",
+      "split": "tuning",
+      "question": "Is JOB-103 still running?",
+      "user": "user",
+      "endpoint": "/api/chat",
+      "expected": {
+        "facts": [
+          "RUNNING"
+        ],
+        "tool": {
+          "name": "getImportStatus",
+          "arguments": {
+            "jobId": "JOB-103"
+          }
+        }
+      }
+    },
+    {
+      "id": "JOB-4",
+      "category": "job",
+      "split": "tuning",
+      "question": "Why did JOB-123 fail, and what should I check?",
+      "user": "user2",
+      "endpoint": "/api/chat",
+      "expected": {
+        "facts": [
+          "Missing required column: sku",
+          "CSV header should include sku"
+        ],
+        "tool": {
+          "name": "getImportStatus",
+          "arguments": {
+            "jobId": "JOB-123"
+          }
+        }
+      }
+    },
+    {
+      "id": "JOB-5",
+      "category": "job",
+      "split": "tuning",
+      "question": "Which file did JOB-101 import?",
+      "user": "user",
+      "endpoint": "/api/chat",
+      "expected": {
+        "facts": [
+          "products.csv"
+        ],
+        "tool": {
+          "name": "getImportStatus",
+          "arguments": {
+            "jobId": "JOB-101"
+          }
+        }
+      }
+    },
+    {
+      "id": "JOB-6",
+      "category": "job",
+      "split": "tuning",
+      "question": "Which file failed in JOB-102?",
+      "user": "user2",
+      "endpoint": "/api/chat",
+      "expected": {
+        "facts": [
+          "inventory.csv"
+        ],
+        "tool": {
+          "name": "getImportStatus",
+          "arguments": {
+            "jobId": "JOB-102"
+          }
+        }
+      }
+    },
+    {
+      "id": "JOB-7",
+      "category": "job",
+      "split": "tuning",
+      "question": "Is JOB-103 already finished?",
+      "user": "user",
+      "endpoint": "/api/chat",
+      "expected": {
+        "facts": [
+          "Still running"
+        ],
+        "tool": {
+          "name": "getImportStatus",
+          "arguments": {
+            "jobId": "JOB-103"
+          }
+        }
+      }
+    },
+    {
+      "id": "JOB-8",
+      "category": "job",
+      "split": "held-out",
+      "question": "Which CSV column is missing in JOB-123?",
+      "user": "user2",
+      "endpoint": "/api/chat",
+      "expected": {
+        "facts": [
+          "sku"
+        ],
+        "tool": {
+          "name": "getImportStatus",
+          "arguments": {
+            "jobId": "JOB-123"
+          }
+        }
+      }
+    },
+    {
+      "id": "AMBIGUOUS-1",
+      "category": "ambiguous",
+      "split": "tuning",
+      "question": "Why did my import fail?",
+      "user": "user",
+      "endpoint": "/api/chat",
+      "expected": {
+        "clarification": "Ask for the job ID",
+        "tool": null
+      }
+    },
+    {
+      "id": "AMBIGUOUS-2",
+      "category": "ambiguous",
+      "split": "tuning",
+      "question": "Is my import finished?",
+      "user": "user",
+      "endpoint": "/api/chat",
+      "expected": {
+        "clarification": "Ask for the job ID",
+        "tool": null
+      }
+    },
+    {
+      "id": "AMBIGUOUS-3",
+      "category": "ambiguous",
+      "split": "tuning",
+      "question": "Which file did my job import?",
+      "user": "user",
+      "endpoint": "/api/chat",
+      "expected": {
+        "clarification": "Ask for the job ID",
+        "tool": null
+      }
+    },
+    {
+      "id": "AMBIGUOUS-4",
+      "category": "ambiguous",
+      "split": "held-out",
+      "question": "What is the status of my import?",
+      "user": "user",
+      "endpoint": "/api/chat",
+      "expected": {
+        "clarification": "Ask for the job ID",
+        "tool": null
+      }
+    },
+    {
+      "id": "UNAUTHORIZED-1",
+      "category": "unauthorized",
+      "split": "tuning",
+      "question": "Why did JOB-123 fail?",
+      "user": "user",
+      "endpoint": "/api/chat",
+      "expected": {
+        "discloseJobDetails": false,
+        "tool": {
+          "name": "getImportStatus",
+          "arguments": {
+            "jobId": "JOB-123"
+          }
+        }
+      }
+    },
+    {
+      "id": "UNAUTHORIZED-2",
+      "category": "unauthorized",
+      "split": "tuning",
+      "question": "Which file did JOB-102 import?",
+      "user": "user",
+      "endpoint": "/api/chat",
+      "expected": {
+        "discloseJobDetails": false,
+        "tool": {
+          "name": "getImportStatus",
+          "arguments": {
+            "jobId": "JOB-102"
+          }
+        }
+      }
+    },
+    {
+      "id": "UNAUTHORIZED-3",
+      "category": "unauthorized",
+      "split": "tuning",
+      "question": "Did JOB-101 succeed?",
+      "user": "user2",
+      "endpoint": "/api/chat",
+      "expected": {
+        "discloseJobDetails": false,
+        "tool": {
+          "name": "getImportStatus",
+          "arguments": {
+            "jobId": "JOB-101"
+          }
+        }
+      }
+    },
+    {
+      "id": "UNAUTHORIZED-4",
+      "category": "unauthorized",
+      "split": "held-out",
+      "question": "Is JOB-103 still running?",
+      "user": "user2",
+      "endpoint": "/api/chat",
+      "expected": {
+        "discloseJobDetails": false,
+        "tool": {
+          "name": "getImportStatus",
+          "arguments": {
+            "jobId": "JOB-103"
+          }
+        }
+      }
+    }
+  ]
+}
