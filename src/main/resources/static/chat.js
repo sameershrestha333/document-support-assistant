@@ -93,3 +93,42 @@ async function readAnswer(body) {
         reader.releaseLock();
     }
 }
+
+const uploadForm = document.querySelector("#upload-form");
+const uploadButton = uploadForm.querySelector("button");
+const uploadStatus = document.querySelector("#upload-status");
+
+uploadForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (uploadButton.disabled) return;
+
+    const file = document.querySelector("#pdf-file").files[0];
+    if (!file) return;
+    uploadButton.disabled = true;
+    uploadStatus.textContent = "Uploading…";
+    try {
+        const data = new FormData();
+        data.append("file", file);
+        const response = await fetch("/api/documents/uploads", { method: "POST", body: data });
+        if (!response.ok) throw new Error("Upload failed (HTTP " + response.status + ").");
+
+        let job = await response.json();
+        const statusUrl = "/api/documents/uploads/" + encodeURIComponent(job.jobId);
+        while (job.status === "PENDING" || job.status === "PROCESSING") {
+            uploadStatus.textContent = job.status === "PENDING" ? "Pending…" : "Processing…";
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            const poll = await fetch(statusUrl, { cache: "no-store" });
+            if (!poll.ok) throw new Error("Could not check upload status (HTTP " + poll.status + ").");
+            job = await poll.json();
+        }
+        if (job.status !== "READY" || !job.documentId) {
+            throw new Error(job.error || "The PDF could not be indexed.");
+        }
+        document.querySelector("#document-id").value = job.documentId;
+        uploadStatus.textContent = "Ready. You can ask a question about this PDF.";
+    } catch (error) {
+        uploadStatus.textContent = error.message;
+    } finally {
+        uploadButton.disabled = false;
+    }
+});

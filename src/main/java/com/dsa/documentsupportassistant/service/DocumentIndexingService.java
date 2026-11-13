@@ -27,6 +27,11 @@ public class DocumentIndexingService {
 
     @Transactional(rollbackFor = IOException.class)
     public String index(Path pdfPath, String owner) throws IOException {
+        return index(pdfPath, owner, pdfPath.getFileName().toString());
+    }
+
+    @Transactional(rollbackFor = IOException.class)
+    public String index(Path pdfPath, String owner, String displayName) throws IOException {
         if (owner == null || owner.isBlank()) {
             throw new IllegalArgumentException("An owner username is required.");
         }
@@ -38,7 +43,7 @@ public class DocumentIndexingService {
             return documentId;
         }
 
-        var pages = new PdfTextExtractor().extract(pdfBytes, pdfPath.getFileName().toString(), documentId);
+        var pages = new PdfTextExtractor().extract(pdfBytes, displayName, documentId);
         var chunker = new TextChunker();
         int chunkCount = 0;
         for (var page : pages) {

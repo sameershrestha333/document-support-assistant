@@ -10,6 +10,13 @@
 <main>
     <h1>Document Support Assistant</h1>
 
+    <form id="upload-form">
+        <label for="pdf-file">Choose a PDF to index</label>
+        <input id="pdf-file" type="file" accept=".pdf,application/pdf" required>
+        <button type="submit">Upload</button>
+        <p id="upload-status" role="status"></p>
+    </form>
+
     <form id="ask-form">
         <p>
             <label for="document-id">Indexed document ID</label><br>
