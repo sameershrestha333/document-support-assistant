@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document Support Assistant</title>
+    <script src="/chat.js" defer></script>
+</head>
+<body>
+<main>
+    <h1>Document Support Assistant</h1>
+
+    <form id="ask-form">
+        <p>
+            <label for="document-id">Indexed document ID</label><br>
+            <input id="document-id" required>
+        </p>
+        <p>
+            <label for="question">Question</label><br>
+            <textarea id="question" rows="3" required></textarea>
+        </p>
+        <button type="submit">Ask</button>
+        <button type="button" id="stop" disabled>Stop</button>
+    </form>
+
+    <p id="status" role="status"></p>
+    <h2>Answer</h2>
+    <p id="answer"></p>
+    <p id="citation"></p>
+</main>
+</body>
+</html>
