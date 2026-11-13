@@ -60,6 +60,19 @@ public class DocumentIndexingService {
         return documentId;
     }
 
+    public boolean canReplace(String documentId, String owner) {
+        return repository.hasAccess(documentId, INDEX_VERSION, owner);
+    }
+
+    @Transactional(rollbackFor = IOException.class)
+    public String replace(Path pdfPath, String owner, String displayName, String previousId) throws IOException {
+        // The deletion locks this owner's grant. Other transactions see it until commit.
+        if (!repository.revokeAccess(previousId, INDEX_VERSION, owner)) {
+            throw new IllegalStateException("The current document is no longer available.");
+        }
+        return index(pdfPath, owner, displayName);
+    }
+
     private static String hash(byte[] pdfBytes) {
         try {
             return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(pdfBytes));

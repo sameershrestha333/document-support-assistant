@@ -109,6 +109,11 @@ uploadForm.addEventListener("submit", async (event) => {
     try {
         const data = new FormData();
         data.append("file", file);
+        if (document.querySelector("#replace-document").checked) {
+            const currentId = document.querySelector("#document-id").value.trim();
+            if (!currentId) throw new Error("Enter the current document ID before replacing it.");
+            data.append("replacesDocumentId", currentId);
+        }
         const response = await fetch("/api/documents/uploads", { method: "POST", body: data });
         if (!response.ok) throw new Error("Upload failed (HTTP " + response.status + ").");
 

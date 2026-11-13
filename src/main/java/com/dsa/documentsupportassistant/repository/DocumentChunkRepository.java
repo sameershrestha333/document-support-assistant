@@ -32,6 +32,13 @@ public class DocumentChunkRepository {
                 """, documentId, indexVersion, owner);
     }
 
+    public boolean revokeAccess(String documentId, int indexVersion, String owner) {
+        return jdbcTemplate.update("""
+                DELETE FROM document_access
+                WHERE document_id = ? AND index_version = ? AND owner_username = ?
+                """, documentId, indexVersion, owner) == 1;
+    }
+
     public boolean hasAccess(String documentId, int indexVersion, String owner) {
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject("""
                 SELECT EXISTS (SELECT 1 FROM document_access
