@@ -8,6 +8,16 @@ Document Support Assistant is a Java and Spring Boot project that will answer qu
 
 **Example:** Upload a sample vehicle-data import guide and ask, “Why did my XML import fail with `INVALID_SCHEMA`?” The assistant will explain what to check and point to the relevant page.
 
+## Why this project uses RAG
+
+The assistant retrieves relevant passages from an indexed PDF and provides
+them to the model with the question. Before returning a page citation, the
+app checks that the quoted evidence appears in the cited passage.
+
+When a guide changes, we index the revised PDF and query its new document ID.
+The same model can answer from the updated evidence. Fine-tuning uses training
+examples to change model behavior, such as making responses follow a preferred
+format more consistently.
 
 ## Run locally
 
