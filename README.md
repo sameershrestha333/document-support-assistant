@@ -107,6 +107,10 @@ Start the app, open `bruno/documentsupportassistant` in Bruno, and run `regressi
 
 Coverage: supported answers, missing evidence, blank and oversized messages, same-ID follow-ups, and fresh-ID isolation. Live model calls incur API usage.
 
+## Evaluation and deployment
+
+See the [evaluation and deployment report](evals/project-report.md).
+
 ## Current Limitations
 
 - Source text is supplied manually; document upload and retrieval are planned.
